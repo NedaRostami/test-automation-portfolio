@@ -1,4 +1,75 @@
-name: UI Tests (Cypress + Allure)
+name: UI Testname: UI Tests (Cypress + Allure)
+
+on:
+  push:
+    paths:
+      - "cypress/**"
+      - ".github/workflows/ui-tests.yml"
+  pull_request:
+    paths:
+      - "cypress/**"
+      - ".github/workflows/ui-tests.yml"
+
+jobs:
+  ui:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # نصب پکیج‌های فولدر cypress
+      - name: Install deps
+        working-directory: ./cypress
+        run: npm ci || npm i
+
+      # اجرای Cypress با اکشن رسمی (دایرکتوری کاری: ./cypress)
+      - name: Run Cypress
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: cypress
+          # اگر خواستی فقط بعضی تست‌ها:
+          # spec: cypress/e2e/**/*
+        env:
+          # اگر baseUrl را می‌خواهی override کنی، اینجا بده
+          # CYPRESS_baseUrl: https://www.saucedemo.com
+          ELECTRON_ENABLE_LOGGING: 1
+
+      # Artifact های Cypress
+      - name: Upload Cypress artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-artifacts
+          path: |
+            cypress/cypress/videos
+            cypress/cypress/screenshots
+
+      # Java برای ساخت Allure HTML
+      - name: Setup Java 17
+        if: always()
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # ساخت گزارش HTML
+      - name: Generate Allure HTML
+        if: always()
+        working-directory: ./cypress
+        run: npx allure generate allure-results --clean -o allure-report
+
+      # آپلود گزارش
+      - name: Upload Allure HTML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: cypress/allure-report
+s (Cypress + Allure)
 
 on:
   push:
@@ -51,3 +122,4 @@ jobs:
         with:
           name: allure-report
           path: cypress/allure-report
+
