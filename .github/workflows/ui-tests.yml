@@ -1,0 +1,53 @@
+name: UI Tests (Cypress + Allure)
+
+on:
+  push:
+    paths:
+      - "cypress/**"
+      - ".github/workflows/ui-tests.yml"
+
+jobs:
+  ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install deps
+        working-directory: ./cypress
+        run: npm ci || npm i
+
+      - name: Run Cypress headless
+        working-directory: ./cypress
+        run: npx cypress run
+
+      - name: Upload Cypress artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-artifacts
+          path: |
+            cypress/cypress/videos
+            cypress/cypress/screenshots
+
+      - name: Setup Java 17
+        if: always()
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Generate Allure HTML
+        if: always()
+        working-directory: ./cypress
+        run: npx allure generate allure-results --clean -o allure-report
+
+      - name: Upload Allure HTML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: cypress/allure-report
