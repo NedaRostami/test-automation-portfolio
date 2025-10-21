@@ -57,4 +57,3 @@ jobs:
           path: |
             cypress/cypress/videos
             cypress/cypress/screenshots
-
