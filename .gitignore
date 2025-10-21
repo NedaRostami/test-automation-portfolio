@@ -11,3 +11,8 @@ __pycache__/
 # Reports
 allure-results/
 allure-report/
+cypress/cypress/videos/
+cypress/cypress/screenshots/
+cypress/allure-results/
+cypress/allure-report/
+node_modules/
