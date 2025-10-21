@@ -20,17 +20,36 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-  - name: Install deps
+
+      - name: Install deps
         working-directory: ./cypress
         run: npm ci || npm i
- - name: Run Cypress
+
+      - name: Run Cypress
         uses: cypress-io/github-action@v6
         with:
           working-directory: cypress
- env:
 
- ELECTRON_ENABLE_LOGGING: 1
- - name: Upload Cypress artifacts
+      - name: Setup Java 17
+        if: always()
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Generate Allure HTML
+        if: always()
+        working-directory: ./cypress
+        run: npx allure generate allure-results --clean -o allure-report
+
+      - name: Upload Allure HTML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: cypress/allure-report
+
+      - name: Upload Cypress artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -38,19 +57,4 @@ jobs:
           path: |
             cypress/cypress/videos
             cypress/cypress/screenshots
- - name: Setup Java 17
-        if: always()
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
- - name: Generate Allure HTML
-        if: always()
-        working-directory: ./cypress
-        run: npx allure generate allure-results --clean -o allure-report
-- name: Upload Allure HTML
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-report
-          path: cypress/allure-report
+
