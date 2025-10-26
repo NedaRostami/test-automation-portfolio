@@ -1,3 +1,4 @@
+
 # Test Automation Portfolio (Cypress + Allure)
 
 **Stack:** Cypress 15, Allure, GitHub Actions, ESLint/Prettier  
@@ -19,3 +20,5 @@ support/
 ## CI
 - Headless Chrome on Ubuntu
 - Artifacts: Allure HTML, videos on failure
+
+
